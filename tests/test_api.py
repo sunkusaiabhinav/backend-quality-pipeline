@@ -2,7 +2,6 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 
-
 client = TestClient(app)
 
 
@@ -23,4 +22,3 @@ def test_get_user() -> None:
         "name": "Abhi",
         "role": "Backend Developer",
     }
-    
