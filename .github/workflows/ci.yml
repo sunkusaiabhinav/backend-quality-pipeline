@@ -29,11 +29,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
 
-      - name: Check Black version
-        run: black --version
-
       - name: Check formatting with Black
-        run: black --check --diff .
+        run: black --check .
 
       - name: Check imports with isort
         run: isort --check-only .
@@ -47,5 +44,20 @@ jobs:
       - name: Run Mypy
         run: mypy app
 
+      - name: Run Bandit
+        run: bandit -r app
+
+      - name: Audit Python dependencies
+        run: pip-audit
+
+      - name: Run Trivy filesystem scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+
       - name: Run tests
         run: python -m pytest
+        
