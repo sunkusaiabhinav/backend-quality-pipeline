@@ -1,37 +1,79 @@
-- name: Install dependencies
-  run: |
-    python -m pip install --upgrade pip
-    pip install -r requirements-dev.txt
+name: Backend Quality Pipeline
 
-- name: Check formatting with Black
-  run: black --check .
+on:
+  push:
+    branches:
+      - main
 
-- name: Check imports with isort
-  run: isort --check-only .
+  pull_request:
+    branches:
+      - main
 
-- name: Run Flake8
-  run: flake8 .
+jobs:
+  quality:
+    runs-on: ubuntu-latest
 
-- name: Run Pylint
-  run: pylint app
+    steps:
+      # 1. Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-- name: Run Mypy
-  run: mypy app
+      # 2. Setup Python
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: "pip"
+          cache-dependency-path: requirements-dev.txt
 
-- name: Run Bandit
-  run: bandit -r app
+      # 3. Install project dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-dev.txt
 
-- name: Audit Python dependencies
-  run: python -m pip_audit
+      # 4. Verify Black
+      - name: Check formatting with Black
+        run: black --check .
 
-- name: Run Trivy filesystem scan
-  uses: aquasecurity/trivy-action@master
-  with:
-    scan-type: fs
-    scan-ref: .
-    severity: CRITICAL,HIGH
-    ignore-unfixed: true
+      # 5. Verify import sorting
+      - name: Check imports with isort
+        run: isort --check-only .
 
-- name: Run tests
-  run: python -m pytest
-  
+      # 6. Run Flake8
+      - name: Run Flake8
+        run: flake8 .
+
+      # 7. Run Pylint
+      - name: Run Pylint
+        run: pylint app
+
+      # 8. Run MyPy
+      - name: Run MyPy
+        run: mypy app
+
+      # 9. Run Bandit
+      - name: Run Bandit
+        run: bandit -r app
+
+      # 10. Install pip-audit explicitly
+      - name: Install pip-audit
+        run: python -m pip install pip-audit
+
+      # 11. Audit Python dependencies
+      - name: Audit Python dependencies
+        run: python -m pip_audit
+
+      # 12. Run Trivy filesystem security scan
+      - name: Run Trivy filesystem scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+
+      # 13. Run tests
+      - name: Run tests
+        run: python -m pytest
+        
