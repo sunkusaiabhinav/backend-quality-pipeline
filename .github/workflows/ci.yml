@@ -1,63 +1,37 @@
-name: Backend Quality Pipeline
+- name: Install dependencies
+  run: |
+    python -m pip install --upgrade pip
+    pip install -r requirements-dev.txt
 
-on:
-  push:
-    branches:
-      - main
+- name: Check formatting with Black
+  run: black --check .
 
-  pull_request:
-    branches:
-      - main
+- name: Check imports with isort
+  run: isort --check-only .
 
-jobs:
-  quality:
-    runs-on: ubuntu-latest
+- name: Run Flake8
+  run: flake8 .
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+- name: Run Pylint
+  run: pylint app
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.14"
-          cache: "pip"
-          cache-dependency-path: requirements-dev.txt
+- name: Run Mypy
+  run: mypy app
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
+- name: Run Bandit
+  run: bandit -r app
 
-      - name: Check formatting with Black
-        run: black --check .
+- name: Audit Python dependencies
+  run: python -m pip_audit
 
-      - name: Check imports with isort
-        run: isort --check-only .
+- name: Run Trivy filesystem scan
+  uses: aquasecurity/trivy-action@master
+  with:
+    scan-type: fs
+    scan-ref: .
+    severity: CRITICAL,HIGH
+    ignore-unfixed: true
 
-      - name: Run Flake8
-        run: flake8 .
-
-      - name: Run Pylint
-        run: pylint app
-
-      - name: Run Mypy
-        run: mypy app
-
-      - name: Run Bandit
-        run: bandit -r app
-
-      - name: Audit Python dependencies
-        run: pip-audit
-
-      - name: Run Trivy filesystem scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: fs
-          scan-ref: .
-          severity: CRITICAL,HIGH
-          ignore-unfixed: true
-
-      - name: Run tests
-        run: python -m pytest
-        
+- name: Run tests
+  run: python -m pytest
+  
