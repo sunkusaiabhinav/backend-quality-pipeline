@@ -2,7 +2,7 @@
 
 pytest
 httpx2
-black
+black==26.5.1
 isort
 flake8
 pylint
