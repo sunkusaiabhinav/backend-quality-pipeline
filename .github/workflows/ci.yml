@@ -29,8 +29,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
 
+      - name: Check Black version
+        run: black --version
+
       - name: Check formatting with Black
-        run: black --check .
+        run: black --check --diff .
 
       - name: Check imports with isort
         run: isort --check-only .
