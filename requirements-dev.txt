@@ -1,10 +1,10 @@
 -r requirements.txt
 
 pytest
+httpx2
 black
 isort
 flake8
 pylint
 mypy
 bandit
-pip-audit
