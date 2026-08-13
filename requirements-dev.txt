@@ -1,6 +1,7 @@
 -r requirements.txt
 
 pytest
+pytest-cov
 httpx2
 black==26.5.1
 isort
